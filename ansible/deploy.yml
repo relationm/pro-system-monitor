@@ -47,8 +47,9 @@
         - init.sql
         - .env
 
-    # 5. Start the application using Docker Compose V2 (БЕЗ ДЕФІСА!)
-    - name: Start Docker Compose
+    # 5. Full Clean and Start using Docker Compose V2
+    - name: Restart Docker Compose
       shell:
-        cmd: docker compose up -d --build
+        #  pause all existing processes and remove conflicting names
+        cmd: docker compose down --remove-orphans && docker compose up -d --build
         chdir: /home/ubuntu/app
