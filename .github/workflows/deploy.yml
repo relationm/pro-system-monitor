@@ -50,6 +50,9 @@ jobs:
         env:
           ANSIBLE_HOST_KEY_CHECKING: False
         run: |
+          # .env from Secrets GITHUB! 
+          echo "${{ secrets.ENV_FILE }}" > .env
+          
           cd ansible
           # Dynamically create the inventory file using the Server IP secret
           echo "[monitoring_server]" > inventory.ini
