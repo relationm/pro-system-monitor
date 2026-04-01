@@ -1,0 +1,53 @@
+---
+- name: Deploy System Monitor Project
+  hosts: monitoring_server # ВИПРАВЛЕНО: тепер співпадає з inventory.ini
+  become: yes  # Run commands with sudo
+
+  tasks:
+    # 1. Update system packages
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    # 2. Install Docker and Docker Compose
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - docker.io
+          - docker-compose
+        state: latest
+
+    # 3. Create project directory on the server
+    - name: Create project directory
+      file:
+        path: /home/ubuntu/app
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+
+    # 4. Copy ONLY NECESSARY project files (Zero Trust Security!) 🔒
+    - name: Copy project files safely
+      copy:
+        src: "../{{ item }}"
+        dest: /home/ubuntu/app/
+        owner: ubuntu
+        group: ubuntu
+      loop:
+        - docker-compose.yml
+        - Dockerfile
+        - main.py
+        - requirements.txt
+        - init.sql
+        - .env
+
+    # 5. Start the application using Docker Compose
+    - name: Start Docker Compose
+      shell:
+        cmd: docker-compose up -d --build
+        chdir: /home/ubuntu/app

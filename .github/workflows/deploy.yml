@@ -1,0 +1,59 @@
+name: CI/CD System Monitor Pro
+
+# Trigger the workflow on every push to the 'main' branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    # Use the latest Ubuntu runner provided by GitHub
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Download the code from the repository to the runner
+      - name: 📥 Checkout source code
+        uses: actions/checkout@v3
+
+      # 2. Set up Python environment for linting
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # 3. Basic code quality check (Linting)
+      - name: 🧹 Run Lint Check (Flake8)
+        run: |
+          pip install flake8
+          # Check for critical syntax errors and undefined names
+          flake8 main.py --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      # 4. Prepare SSH Key for AWS access
+      # We pull the private key from GitHub Secrets (encrypted storage)
+      - name: 🔑 Set up SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Add the server to known_hosts to prevent interactive prompts
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      # 5. Install Ansible on the GitHub runner
+      - name: ⚙️ Install Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+
+      # 6. Execute the Ansible Playbook to deploy updates
+      - name: 🚀 Run Ansible Deployment
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: False
+        run: |
+          cd ansible
+          # Dynamically create the inventory file using the Server IP secret
+          echo "[monitoring_server]" > inventory.ini
+          echo "${{ secrets.SERVER_IP }} ansible_user=ubuntu" >> inventory.ini
+          
+          # Deploy the stack using the SSH key prepared in step 4
+          ansible-playbook -i inventory.ini deploy.yml --private-key ~/.ssh/deploy_key

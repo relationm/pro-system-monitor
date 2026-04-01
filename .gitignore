@@ -1,0 +1,28 @@
+# File: .gitignore
+
+# 1. Secrets and Keys
+.env
+terraform/monitor_key
+*.pem
+*.key
+id_rsa*
+
+# 2. Terraform State Files (May contain AWS secrets in plain text)
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+.terraform.lock.hcl
+
+# 3. Python (Virtual Environments and Cache)
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# 4. OS and IDE Specific
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
