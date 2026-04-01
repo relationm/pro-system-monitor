@@ -10,7 +10,7 @@
         update_cache: yes
         cache_valid_time: 3600
 
-    # 2. Install Docker and Docker Compose
+    # 2. Install MODERN Docker and Docker Compose V2
     - name: Install required system packages
       apt:
         pkg:
@@ -19,8 +19,9 @@
           - curl
           - software-properties-common
           - python3-pip
+          # Ми переходимо на сучасний стек
           - docker.io
-          - docker-compose
+          - docker-compose-v2 # Це встановить сучасний плагін
         state: latest
 
     # 3. Create project directory on the server
@@ -46,8 +47,8 @@
         - init.sql
         - .env
 
-    # 5. Start the application using Docker Compose
+    # 5. Start the application using Docker Compose V2 (БЕЗ ДЕФІСА!)
     - name: Start Docker Compose
       shell:
-        cmd: docker-compose up -d --build
+        cmd: docker compose up -d --build
         chdir: /home/ubuntu/app
