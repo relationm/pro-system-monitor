@@ -66,4 +66,4 @@ sudo docker exec -it metrics_db mysql -u root -p system_monitor -e "SELECT * FRO
 *    Free Disk Space (GB)  
 *    I/O Wait (%)  
   
-Developed as a DevOps Portfolio Project by [relationm/GitHub Profile]
+Developed as a DevOps Portfolio Project by [@relationm](https://github.com/relationm/)
